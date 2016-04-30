@@ -1,12 +1,13 @@
 var width = 960;
 var height = 500;
 var bombPositions = [];
-var numberOfBombs = 15;
+var numberOfBombs = 10;
 var bombHeight = 40;
-var marioHeight = 60;
 var marioPosition = [50, 50];
-var collisions = 0;
+var collisionCount = 0;
 var highScore = 0;
+var collisionFlag = false;
+var marioHeight = 40;
 
 var svg = d3.select('body').append('svg')
     .attr('width', width)
@@ -19,8 +20,8 @@ var mario = svg.append('image')
   .attr('class', 'mario')
   .attr('x', marioPosition[0])
   .attr('y', marioPosition[1])
-  .attr('height', bombHeight)
-  .attr('width', bombHeight)
+  .attr('height', marioHeight)
+  .attr('width', marioHeight)
   .attr('xlink:href', 'mario.png')
   .style('cursor', 'none');
 
@@ -33,6 +34,7 @@ var randomizePositions = function(numberOfBombs) {
 };  
 
 var updateBombs = function(positions) {
+
   // DATA JOIN
   // Join new data with old elements, if any.
   var character = svg.selectAll('.bombs')
@@ -42,6 +44,7 @@ var updateBombs = function(positions) {
   // Update old elements as needed.
   character.attr('class', 'bombs')
       .transition().duration(1000)
+      .tween('collisions', checkCollisions)
       .attr('x', function(d) { return d[0]; } )
       .attr('y', function(d) { return d[1]; } );
 
@@ -50,6 +53,7 @@ var updateBombs = function(positions) {
   character.enter().append('image')
       .attr('class', 'bombs')
       .transition().duration(1000)
+      .tween('collisions', checkCollisions)
       .attr('x', function(d) { return d[0]; } )
       .attr('y', function(d) { return d[1]; } );
 
@@ -73,47 +77,59 @@ updateBombs(bombPositions);
 d3.select('svg').on('mousemove', function() {
   var coordinates = d3.mouse(this);
   d3.select('.mario')
-    .attr('x', coordinates[0] - marioHeight / 2)
-    .attr('y', coordinates[1] - marioHeight / 2);
-
-  //checkCollisions(coordinates);  
+    .attr('x', coordinates[0])
+    .attr('y', coordinates[1]);
+  checkCollisions();
 });
 
-//easy collisions...
-d3.selectAll('.bombs').on('mouseover', function() {
-  if (time / 1000 > highScore) {
-    highScore = time / 1000;
-    d3.select('.highscore').select('span')
-      .text(highScore);
-  }
-  time = 0;
-  collisions++;
-  d3.select('.collisions').select('span')
-    .text(collisions);
-});
 
-// var checkCollisions = function(marioPosition) {
-//   var bombPositions = [];
-//   d3.selectAll('.bombs')[0].forEach(function(img) {
-//     bombPositions.push([img.getAttribute('x'), img.getAttribute('y')]);
-//   });
-  
-//   for (var i = 0; i < bombPositions.length; i++) {
-//     var marioX = marioPosition[0] + marioHeight / 2;
-//     var marioY = marioPosition[1] + marioHeight / 2;
-//     var bombX = bombPositions[i][0];
-//     var bombY = bombPositions[i][1];
-//     var distance = Math.sqrt( Math.pow((bombX - marioX), 2) + Math.pow((bombY - marioY), 2) );
+var checkCollisions = function() {
+  return function() {
+    if (collisionFlag !== true) {
+      collisionFlag = true;
+      
+      //get Mario's position
+      var marioX = Number(d3.select('.mario').attr('x')) - 10; //10 is a fudge factor
+      var marioY = Number(d3.select('.mario').attr('y')) - 10;
 
-//     if (distance < 100) {
-//       collisions++;
-//       console.log(collisions);
-//       time = 0;
-//       d3.select('.collisions').select('span')
-//         .text(collisions);
-//     }
-//   }
-// };
+      //get all the bombs's positions
+      var bombsCoordinates = [];
+      d3.selectAll('.bombs')[0].forEach(function(el) {
+        bombsCoordinates.push([el.getAttribute('x'), el.getAttribute('y')]);
+      });
+
+      //check if the distance between mario and all the bomb's is a collision
+      bombsCoordinates.forEach(function(aBombXY) {
+        var distanceX = aBombXY[0] - marioX;
+        var distanceY = aBombXY[1] - marioY;
+
+        var distance = Math.sqrt(Math.pow(distanceX, 2) + Math.pow(distanceY, 2));
+
+        if (distance < 40) {
+          collisionCount++;
+          if ((time / 1000) > highScore) {
+            highScore = time / 1000;
+          } 
+          updateBoard();
+          time = 0;
+        }
+      });
+
+      setTimeout(function() {
+        collisionFlag = false;
+      }, 100);
+    }
+  };
+};
+
+
+var updateBoard = function() {
+  d3.select('.highscore').selectAll('span').text(highScore);
+
+  d3.select('.collisions').selectAll('span').text(collisionCount);
+};
+
+
 
 //reset bomb positions every second
 setInterval(function() {
@@ -125,7 +141,7 @@ setInterval(function() {
 var time = 0;
 setInterval(function() {
   time += 10;
-  d3.select('.current').select('span')
+  d3.select('.current').selectAll('span')
     .data([1])
     .text(time / 1000);
 }, 10);
