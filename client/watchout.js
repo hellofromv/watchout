@@ -3,7 +3,10 @@ var height = 500;
 var bombPositions = [];
 var numberOfBombs = 15;
 var bombHeight = 40;
+var marioHeight = 60;
 var marioPosition = [50, 50];
+var collisions = 0;
+var highScore = 0;
 
 var svg = d3.select('body').append('svg')
     .attr('width', width)
@@ -30,7 +33,6 @@ var randomizePositions = function(numberOfBombs) {
 };  
 
 var updateBombs = function(positions) {
-
   // DATA JOIN
   // Join new data with old elements, if any.
   var character = svg.selectAll('.bombs')
@@ -71,20 +73,47 @@ updateBombs(bombPositions);
 d3.select('svg').on('mousemove', function() {
   var coordinates = d3.mouse(this);
   d3.select('.mario')
-    .attr('x', coordinates[0])
-    .attr('y', coordinates[1]);
+    .attr('x', coordinates[0] - marioHeight / 2)
+    .attr('y', coordinates[1] - marioHeight / 2);
 
-  //checkCollision(coordinates);  
+  //checkCollisions(coordinates);  
 });
 
+//easy collisions...
+d3.selectAll('.bombs').on('mouseover', function() {
+  if (time / 1000 > highScore) {
+    highScore = time / 1000;
+    d3.select('.highscore').select('span')
+      .text(highScore);
+  }
+  time = 0;
+  collisions++;
+  d3.select('.collisions').select('span')
+    .text(collisions);
+});
 
-var checkCollisions = function(marioPosition) {
-  console.log(d3.selectAll('.bombs').attr('x'));
-};
+// var checkCollisions = function(marioPosition) {
+//   var bombPositions = [];
+//   d3.selectAll('.bombs')[0].forEach(function(img) {
+//     bombPositions.push([img.getAttribute('x'), img.getAttribute('y')]);
+//   });
+  
+//   for (var i = 0; i < bombPositions.length; i++) {
+//     var marioX = marioPosition[0] + marioHeight / 2;
+//     var marioY = marioPosition[1] + marioHeight / 2;
+//     var bombX = bombPositions[i][0];
+//     var bombY = bombPositions[i][1];
+//     var distance = Math.sqrt( Math.pow((bombX - marioX), 2) + Math.pow((bombY - marioY), 2) );
 
-checkCollisions();
-
-
+//     if (distance < 100) {
+//       collisions++;
+//       console.log(collisions);
+//       time = 0;
+//       d3.select('.collisions').select('span')
+//         .text(collisions);
+//     }
+//   }
+// };
 
 //reset bomb positions every second
 setInterval(function() {
@@ -96,7 +125,7 @@ setInterval(function() {
 var time = 0;
 setInterval(function() {
   time += 10;
-  d3.select('.current').selectAll('span')
+  d3.select('.current').select('span')
     .data([1])
     .text(time / 1000);
 }, 10);
