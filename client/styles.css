@@ -1,5 +1,5 @@
-/* your beautiful css styling goes here! */
-
-/* Note: an asteroid image is included in this repo.
-Feel free to use it if you like. */
+svg {
+  background-image: url('bowserbackground.png');
+  background-size: 960px;
+}
 
