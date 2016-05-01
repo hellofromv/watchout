@@ -1,5 +1,42 @@
+html {
+  background: url('wallpaper.jpg') no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover; 
+}
+
+body {
+  text-align: center;
+}
+
+.container {
+  border: 5px black;
+  border-style: double;
+  width: 960px;
+  height: 554px;
+  margin: 0 auto;
+}
+
 svg {
-  background-image: url('bowserbackground.png');
+  background-image: url('bowserwallpaper2.png');
   background-size: 960px;
 }
+
+.bombs {
+  animation: spin 2s linear infinite;
+  transform-origin: center;
+}
+
+.scoreboard {
+  width: 960px;
+  font-family: 'Inconsolata';
+  /*font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;*/
+  margin: 0 auto 0 auto;
+  background: #fec61f;
+}
+
+@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
 

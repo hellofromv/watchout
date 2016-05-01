@@ -2,10 +2,12 @@
 <html>
   <head>
     <link rel='stylesheet' type='text/css' href='styles.css'>
+    <audio src="superMarioThemeSong.mp3" autoplay loop></audio>
+    <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>  
   </head>
   <body>
+  <div class="container">
     <div class="scoreboard">
-      <!-- Modify the scoreboard when important events occur in your game! -->
       <div class="highscore">High score: <span>0</span></div>
       <div class="current">Current score: <span>0</span></div>
       <div class="collisions">Collisions: <span>0</span></div>
@@ -13,5 +15,6 @@
     <div class="board"><div class="mouse"></div></div>
     <script src="lib/d3.js" charset="utf-8"></script>
     <script src='watchout.js'></script>
+  </div>
   </body>
 </html>

@@ -9,11 +9,13 @@ var highScore = 0;
 var collisionFlag = false;
 var marioHeight = 40;
 
-var svg = d3.select('body').append('svg')
+
+var svg = d3.select('.container').append('svg')
     .attr('width', width)
     .attr('height', height)
     .style('cursor', 'none')
   .append('g');
+
 
 //add mario
 var mario = svg.append('image')
@@ -25,6 +27,7 @@ var mario = svg.append('image')
   .attr('xlink:href', 'mario.png')
   .style('cursor', 'none');
 
+
 var randomizePositions = function(numberOfBombs) {
   for (var i = 0; i < numberOfBombs; i++) {
     var randomX = Math.random() * (width - bombHeight);
@@ -33,46 +36,39 @@ var randomizePositions = function(numberOfBombs) {
   }
 };  
 
-var updateBombs = function(positions) {
 
-  // DATA JOIN
-  // Join new data with old elements, if any.
+var updateBombs = function(positions) {
   var character = svg.selectAll('.bombs')
       .data(positions);
 
-  // UPDATE
   // Update old elements as needed.
   character.attr('class', 'bombs')
       .transition().duration(1000)
       .tween('collisions', checkCollisions)
+      .attr('xlink:href', function(d) { return this.getAttribute('x') < d[0] ? 'walkingBomb.gif' : 'walkingBombreverse.gif'; })
       .attr('x', function(d) { return d[0]; } )
       .attr('y', function(d) { return d[1]; } );
-
-  // ENTER
+    
   // Create new elements as needed.
   character.enter().append('image')
       .attr('class', 'bombs')
       .transition().duration(1000)
       .tween('collisions', checkCollisions)
+      .attr('xlink:href', function(d) { return this.getAttribute('x') < d[0] ? 'walkingBomb.gif' : 'walkingBombreverse.gif'; })
       .attr('x', function(d) { return d[0]; } )
       .attr('y', function(d) { return d[1]; } );
 
-  // ENTER + UPDATE
-  // Appending to the enter selection expands the update selection to include
-  // entering elements; so, operations on the update selection after appending to
-  // the enter selection will apply to both entering and updating nodes.
   character.attr('height', bombHeight)
-      .attr('width', bombHeight)
-      .attr('xlink:href', 'bob-omb.png');
+      .attr('width', bombHeight);
 
-  // EXIT
-  // Remove old elements as needed.
   character.exit().remove();
 };
+
 
 //randomize and update bomb positions
 randomizePositions(numberOfBombs);
 updateBombs(bombPositions);
+
 
 d3.select('svg').on('mousemove', function() {
   var coordinates = d3.mouse(this);
@@ -130,12 +126,12 @@ var updateBoard = function() {
 };
 
 
-
 //reset bomb positions every second
 setInterval(function() {
   randomizePositions(numberOfBombs);
   updateBombs(bombPositions);
 }, 1000);
+
 
 //timer
 var time = 0;
@@ -143,5 +139,5 @@ setInterval(function() {
   time += 10;
   d3.select('.current').selectAll('span')
     .data([1])
-    .text(time / 1000);
+    .text((time / 1000).toFixed(2));
 }, 10);
